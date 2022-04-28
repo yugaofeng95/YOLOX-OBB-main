@@ -10,8 +10,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-from .VariFocalLoss_6 import VarifocalLoss
-# from .VariFocalLoss import VarifocalLoss
+# from .VariFocalLoss_6 import VarifocalLoss
+from .VariFocalLoss import VarifocalLoss
 
 #from yolox.utils import bboxes_iou
 
@@ -60,7 +60,7 @@ class YOLOXHeadOBB_KLD(nn.Module):
         # self.varifocal2 = VarifocalLoss(reduction='none')
         # self.varifocal3 = VarifocalLoss(reduction='none')
         # self.varifacol5 = VarifocalLoss(reduction='none')
-        self.EFfacol = VarifocalLoss(reduction='none')
+        self.varifacol = VarifocalLoss(reduction='none')
 
         Conv = DWConv if depthwise else BaseConv
 
@@ -472,7 +472,7 @@ class YOLOXHeadOBB_KLD(nn.Module):
         # ).sum() / num_fg
         loss_obj = (
 
-                       self.EFfacol(obj_preds.view(-1, 1), obj_targets)
+                       self.varifacol(obj_preds.view(-1, 1), obj_targets)
                    ).sum() / num_fg
         # loss_obj = (
         #                self.EFL(obj_preds.view(-1,1),obj_targets)

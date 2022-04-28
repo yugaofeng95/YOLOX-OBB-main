@@ -8,8 +8,11 @@ import torch.nn as nn
 from .darknet import CSPDarknet
 from .network_blocks import BaseConv, CSPLayer, DWConv
 
+
 # 导入注意力机制模块
 from.Attention import cbam_block
+#feature fusion
+from .ASFF import ASFF
 
 
 class YOLOPAFPN(nn.Module):
@@ -88,6 +91,11 @@ class YOLOPAFPN(nn.Module):
         self.cbam_2 = cbam_block(int(in_channels[1] * width))
         self.cbam_3 = cbam_block(int(in_channels[0] * width))
 
+        #ASFF实例化
+        self.asff_1 = ASFF(level=0,multiplier=width)
+        self.asff_2 = ASFF(level=1,multiplier=width)
+        self.asff_3 = ASFF(level=2,multiplier=width)
+
     def forward(self, input):
         """
         Args:
@@ -126,4 +134,10 @@ class YOLOPAFPN(nn.Module):
         pan_out0 = self.C3_n4(p_out0)  # 1024->1024/32
 
         outputs = (pan_out2, pan_out1, pan_out0)
+
+        #ASFF
+        pan_out0 = self.asff_1(outputs)
+        pan_out1 = self.asff_2(outputs)
+        pan_out2 = self.asff_3(outputs)
+        outputs = (pan_out2,pan_out1,pan_out0)
         return outputs
